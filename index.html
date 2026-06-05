@@ -209,6 +209,62 @@ td.tps-tot{color:var(--ylw);font-family:'DM Mono',monospace;font-size:12px;font-
   .row3,.row4{grid-template-columns:1fr 1fr}
   .topbar-right{display:none}
 }
+
+/* ── MOBILE CARD VIEW ─────────────────────────────────────────────── */
+.card-list{display:none;flex-direction:column;gap:10px}
+.entry-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
+.entry-card-head{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:8px}
+.entry-card-title{font-size:13px;font-weight:600;color:var(--tx);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-card-meta{font-size:11px;color:var(--tx2)}
+.entry-card-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.entry-section{display:flex;flex-direction:column;gap:4px}
+.entry-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+.entry-section-title.red{color:var(--red)}
+.entry-section-title.grn{color:var(--grn)}
+.entry-section-title.ylw{color:var(--ylw)}
+.entry-chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{background:var(--bg4);border:1px solid var(--line2);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--tx2);display:flex;gap:4px;align-items:center}
+.chip .chip-label{color:var(--tx3);font-size:10px}
+.chip .chip-val{color:var(--tx);font-weight:500;font-family:'DM Mono',monospace}
+.chip.red{background:var(--red-d);border-color:var(--red-m)}
+.chip.red .chip-val{color:var(--red)}
+.chip.grn{background:var(--grn-d);border-color:var(--grn-m)}
+.chip.grn .chip-val{color:var(--grn)}
+.chip.ylw{background:var(--ylw-d);border-color:var(--ylw-m)}
+.chip.ylw .chip-val{color:var(--ylw)}
+.entry-card-footer{padding:8px 14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.entry-rem{font-size:11px;color:var(--tx2);flex:1;font-style:italic}
+
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}
+  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:8px 10px;gap:4px;border-right:none;border-bottom:1px solid var(--line);overflow-x:auto;align-items:center}
+  .nav-section{display:none}
+  .nav-btn{padding:8px 14px;font-size:12px;white-space:nowrap;width:auto;margin:0;border-radius:20px}
+  .nav-btn[style*="pointer-events:none"]{display:none}
+  .main{padding:12px;gap:14px}
+  .form-grid{grid-template-columns:1fr}
+  .row2{grid-template-columns:1fr 1fr}
+  .row3{grid-template-columns:1fr 1fr 1fr}
+  .row4{grid-template-columns:1fr 1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .recap-cols{grid-template-columns:1fr}
+  .temps-grid{grid-template-columns:1fr}
+  .temps-grid .recap-item:nth-child(odd){border-right:none}
+  .topbar{padding:0 14px;height:48px}
+  .topbar-right{gap:5px}
+  .kpi-pill{font-size:10px;padding:3px 7px}
+  .logo{font-size:13px}
+  .card-body{padding:12px}
+  /* Tableau → masqué sur mobile, cartes à la place */
+  .tbl-wrap{display:none}
+  .card-list{display:flex}
+}
+@media(max-width:480px){
+  .row3{grid-template-columns:1fr 1fr}
+  .row4{grid-template-columns:1fr 1fr}
+  .topbar-right{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -522,6 +578,7 @@ function renderTable(){
     tb.innerHTML=`<tr class="empty-msg"><td colspan="32">Aucune donnée – remplis le formulaire dans "Nouvelle entrée"</td></tr>`;
     return;
   }
+  renderCards();
   tb.innerHTML=rows.map(e=>`
     <tr>
       <td class="left">${v0(e.bat)}</td><td class="left">${v0(e.zone)}</td><td>${v0(e.etage)}</td><td class="left" style="min-width:120px;font-weight:500">${e.local}</td>
@@ -595,6 +652,59 @@ function exportCSV(){
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='suivi_chantier_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
+}
+
+
+function chip(label, val, cls){
+  if(!val && val!==0) return '';
+  if(val===0||val==='') return '';
+  return `<div class="chip ${cls}"><span class="chip-label">${label}</span><span class="chip-val">${val}</span></div>`;
+}
+
+function renderCards(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const fs=document.getElementById('filtre-statut').value;
+  const rows=data.filter(e=>{
+    const txt=(e.bat+e.zone+e.etage+e.local+e.rem).toLowerCase();
+    return txt.includes(q)&&(fs===''||e.statut===fs);
+  });
+  const cl=document.getElementById('card-list');
+  if(!cl)return;
+  if(!rows.length){
+    cl.innerHTML=`<div style="text-align:center;padding:40px;color:var(--tx3);font-size:13px">Aucune donnée – remplis le formulaire dans "Nouvelle entrée"</div>`;
+    return;
+  }
+
+  const depFields=[['BBG','bbg'],['Btn','btn'],['Vent','vent'],['Câble','cable'],['Tube','tube'],['Cam','cam'],['Supp','supp'],['RJ45','rj45']];
+  const insFields=[['BBG','bbg'],['BCR','bcr'],['Btn','btn'],['Vent','vent'],['Câble','cable'],['Tube','tube'],['Perc','perc'],['CF','cf'],['Fin','fin'],['Cam','cam'],['Supp','supp'],['RJ45','rj45']];
+
+  cl.innerHTML=rows.map(e=>{
+    const loc=[e.bat,e.zone,e.etage].filter(Boolean).join(' · ');
+    const depChips=depFields.map(([l,k])=>chip(l,e.d[k],'red')).filter(Boolean).join('');
+    const insChips=insFields.map(([l,k])=>chip(l,e.i[k],'grn')).filter(Boolean).join('');
+    const tpsChips=[
+      chip('Pose',e.t.pose?e.t.pose+'h':'','ylw'),
+      chip('Prog',e.t.prog?e.t.prog+'h':'','ylw'),
+      chip('Interv',e.t.interv>1?e.t.interv:'','ylw'),
+      chip('Total',e.t.total?e.t.total+'h':'','ylw'),
+    ].filter(Boolean).join('');
+    return `<div class="entry-card">
+      <div class="entry-card-head">
+        <span class="entry-card-title">${e.local}</span>
+        ${loc?`<span class="entry-card-meta">${loc}</span>`:''}
+        ${badgeHtml(e.statut)}
+      </div>
+      <div class="entry-card-body">
+        ${depChips?`<div class="entry-section"><div class="entry-section-title red">Dépose</div><div class="entry-chips">${depChips}</div></div>`:''}
+        ${insChips?`<div class="entry-section"><div class="entry-section-title grn">Installation</div><div class="entry-chips">${insChips}</div></div>`:''}
+        ${tpsChips?`<div class="entry-section"><div class="entry-section-title ylw">Temps</div><div class="entry-chips">${tpsChips}</div></div>`:''}
+      </div>
+      <div class="entry-card-footer">
+        <span class="entry-rem">${e.rem||''}</span>
+        <button class="btn-del" onclick="delEntry(${e.id})" title="Supprimer">✕</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── PERSISTENCE localStorage ──────────────────────────────────────────────
