@@ -2,525 +2,361 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Suivi Chantier</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0f1117;
-  --bg2:#171b26;
-  --bg3:#1e2333;
-  --bg4:#252a3d;
-  --line:#2e3450;
-  --line2:#3d4468;
-  --tx:#e8ecf4;
+  --bg:#0a0a0f;
+  --bg2:#12131a;
+  --bg3:#1a1b26;
+  --bg4:#22243a;
+  --line:#2a2d45;
+  --line2:#363a5a;
+  --tx:#f0f2ff;
   --tx2:#8892b0;
-  --tx3:#5a6380;
-  --red:#ff4d4d;
-  --red-d:#2a0e0e;
-  --red-m:#3d1515;
-  --grn:#34d399;
-  --grn-d:#0a2218;
-  --grn-m:#0f3326;
-  --ylw:#fbbf24;
-  --ylw-d:#241a06;
-  --ylw-m:#332408;
-  --blu:#60a5fa;
-  --blu-d:#0c1a2e;
-  --acc:#6366f1;
-  --acc2:#818cf8;
-  --r:8px;
-  --rl:12px;
-  --rxl:16px;
+  --tx3:#4a5070;
+  --red:#ff5555;--red-d:#1a0a0a;--red-m:#2d1010;
+  --grn:#50fa7b;--grn-d:#051a0a;--grn-m:#0a2d12;
+  --ylw:#ffb86c;--ylw-d:#1a1005;--ylw-m:#2d1e0a;
+  --blu:#8be9fd;--blu-d:#051218;
+  --acc:#bd93f9;--acc-d:#1a0d2e;--acc-m:#2a1545;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:16px;overflow:hidden}
 
-html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5}
+/* ── APP SHELL ── */
+.app{display:flex;flex-direction:column;height:100dvh;height:100vh;max-width:500px;margin:0 auto;position:relative;background:var(--bg)}
 
-/* ── LAYOUT ── */
-.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
-.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;height:56px;gap:16px;position:sticky;top:0;z-index:100}
-.logo{font-weight:600;font-size:15px;color:var(--tx);letter-spacing:-.2px;display:flex;align-items:center;gap:10px}
-.logo-icon{width:28px;height:28px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-.kpi-pill{background:var(--bg4);border:1px solid var(--line2);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--tx2);font-family:'DM Mono',monospace}
-.kpi-pill span{color:var(--tx);font-weight:500}
+/* ── HEADER ── */
+.header{background:var(--bg2);border-bottom:1px solid var(--line);padding:16px 20px 12px;flex-shrink:0}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.app-name{font-size:22px;font-weight:700;color:var(--tx);letter-spacing:-.5px}
+.header-kpis{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:2px}
+.hkpi{background:var(--bg4);border:1px solid var(--line2);border-radius:12px;padding:6px 12px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.hkpi-val{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.hkpi-label{font-size:11px;color:var(--tx2)}
+.hkpi.acc .hkpi-val{color:var(--acc)}
+.hkpi.grn .hkpi-val{color:var(--grn)}
+.hkpi.ylw .hkpi-val{color:var(--ylw)}
 
-.sidebar{background:var(--bg2);border-right:1px solid var(--line);padding:20px 0;display:flex;flex-direction:column;gap:2px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
-.nav-section{padding:0 16px 6px;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-top:16px}
-.nav-section:first-child{margin-top:0}
-.nav-btn{display:flex;align-items:center;gap:10px;padding:9px 16px;border-radius:var(--r);margin:0 8px;cursor:pointer;border:none;background:transparent;color:var(--tx2);font-size:13px;font-family:'DM Sans',sans-serif;transition:all .15s;width:calc(100% - 16px);text-align:left}
-.nav-btn:hover{background:var(--bg3);color:var(--tx)}
-.nav-btn.active{background:var(--acc);color:#fff;font-weight:500}
-.nav-btn .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dot-red{background:var(--red)}
-.dot-grn{background:var(--grn)}
-.dot-ylw{background:var(--ylw)}
-.dot-blu{background:var(--blu)}
-.dot-acc{background:var(--acc2)}
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.page{display:none;padding:16px;flex-direction:column;gap:14px}
+.page.active{display:flex}
 
-.main{padding:28px;overflow-y:auto;display:flex;flex-direction:column;gap:24px}
+/* ── BOTTOM NAV ── */
+.bottom-nav{flex-shrink:0;background:var(--bg2);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding-bottom:calc(8px + var(--safe-bottom))}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px 8px;cursor:pointer;border:none;background:transparent;color:var(--tx2);transition:color .15s;font-family:'Inter',sans-serif}
+.nav-item.active{color:var(--acc)}
+.nav-icon{font-size:22px;line-height:1}
+.nav-label{font-size:11px;font-weight:500;letter-spacing:.2px}
 
-.section{display:none}
-.section.active{display:flex;flex-direction:column;gap:20px}
+/* ── SECTION CARD ── */
+.scard{background:var(--bg2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.scard-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.scard-head h2{font-size:15px;font-weight:600;flex:1}
+.stag{font-size:10px;font-weight:600;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+.stag-red{background:var(--red-m);color:var(--red)}
+.stag-grn{background:var(--grn-m);color:var(--grn)}
+.stag-ylw{background:var(--ylw-m);color:var(--ylw)}
+.stag-acc{background:var(--acc-m);color:var(--acc)}
+.scard-body{padding:16px}
 
-/* ── CARDS ── */
-.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rxl);overflow:hidden}
-.card-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
-.card-head h2{font-size:13px;font-weight:600;color:var(--tx);flex:1}
-.card-tag{font-size:10px;font-weight:500;padding:3px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px}
-.tag-red{background:var(--red-m);color:var(--red)}
-.tag-grn{background:var(--grn-m);color:var(--grn)}
-.tag-ylw{background:var(--ylw-m);color:var(--ylw)}
-.tag-acc{background:#1e1f3d;color:var(--acc2)}
-.card-body{padding:20px}
-
-/* ── FORM ── */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.field-group{display:flex;flex-direction:column;gap:12px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-.field{display:flex;flex-direction:column;gap:5px}
-.field label{font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px}
+/* ── FIELDS ── */
+.field-group{display:flex;flex-direction:column;gap:14px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px}
 .field input,.field select,.field textarea{
-  background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r);
-  padding:9px 12px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;
-  outline:none;transition:border-color .15s,background .15s;width:100%
+  background:var(--bg3);border:1.5px solid var(--line2);border-radius:10px;
+  padding:13px 14px;color:var(--tx);font-size:16px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .15s,background .15s;width:100%;
+  -webkit-appearance:none;appearance:none
 }
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc2);background:var(--bg4)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc);background:var(--bg4)}
 .field input::placeholder{color:var(--tx3)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 .field select option{background:var(--bg3)}
-.field textarea{resize:none;height:64px}
-.field input[type=number]{font-family:'DM Mono',monospace}
-.accent-border-left{border-left:2px solid var(--red)!important}
-.accent-border-left.grn{border-left-color:var(--grn)!important}
-.accent-border-left.ylw{border-left-color:var(--ylw)!important}
-.accent-border-left.acc{border-left-color:var(--acc)!important}
+.field textarea{resize:none;height:72px;font-size:15px}
+.field input[type=number]{font-variant-numeric:tabular-nums}
+.field-accent-red input,.field-accent-red select{border-color:var(--red-m)}
+.field-accent-red input:focus,.field-accent-red select:focus{border-color:var(--red)}
+.field-accent-grn input,.field-accent-grn select{border-color:var(--grn-m)}
+.field-accent-grn input:focus,.field-accent-grn select:focus{border-color:var(--grn)}
+.field-accent-ylw input,.field-accent-ylw select{border-color:var(--ylw-m)}
+.field-accent-ylw input:focus,.field-accent-ylw select:focus{border-color:var(--ylw)}
 
-.btn-row{display:flex;gap:10px;align-items:center;padding-top:4px}
-.btn-primary{padding:10px 24px;background:var(--acc);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;letter-spacing:.1px}
-.btn-primary:hover{background:var(--acc2);transform:translateY(-1px)}
-.btn-primary:active{transform:translateY(0)}
-.btn-sec{padding:10px 16px;background:transparent;color:var(--tx2);border:1px solid var(--line2);border-radius:var(--r);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.btn-sec:hover{background:var(--bg3);color:var(--tx)}
-.toast{font-size:12px;color:var(--grn);display:none;align-items:center;gap:6px;background:var(--grn-d);padding:6px 12px;border-radius:20px;border:1px solid var(--grn-m)}
+/* ── BUTTONS ── */
+.btn-full{width:100%;padding:16px;background:var(--acc);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;letter-spacing:.1px;margin-top:4px}
+.btn-full:active{transform:scale(.98);opacity:.9}
+.btn-ghost{width:100%;padding:14px;background:transparent;color:var(--tx2);border:1.5px solid var(--line2);border-radius:12px;font-size:15px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-ghost:active{background:var(--bg3)}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--grn-d);border:1px solid var(--grn-m);color:var(--grn);padding:12px 20px;border-radius:20px;font-size:14px;font-weight:500;z-index:999;display:none;white-space:nowrap}
 
-/* ── TABLE ── */
-.table-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.search-wrap{position:relative;flex:1;min-width:180px}
-.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r);padding:9px 12px 9px 36px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
-.search-wrap input:focus{border-color:var(--acc2)}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:15px;pointer-events:none}
-.filter-sel{background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r);padding:9px 12px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
-.count-badge{font-size:11px;color:var(--tx2);background:var(--bg4);padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-family:'DM Mono',monospace;margin-left:auto}
-.btn-export{display:flex;align-items:center;gap:6px;padding:9px 14px;background:transparent;color:var(--tx2);border:1px solid var(--line2);border-radius:var(--r);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.btn-export:hover{background:var(--bg3);color:var(--grn);border-color:var(--grn)}
-
-.tbl-wrap{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--line)}
-table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Sans',sans-serif}
-.thead-group th{padding:7px 8px;text-align:center;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
-.th-loc{background:#1a1f30;color:var(--tx2)}
-.th-dep{background:#2a0e0e;color:var(--red)}
-.th-ins{background:#0c1a2e;color:var(--blu)}
-.th-tps{background:#1a1300;color:var(--ylw)}
-.th-oth{background:#1a1f30;color:var(--tx2)}
-.thead-col th{background:var(--bg3);color:var(--tx3);padding:6px 7px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;text-align:center;border-bottom:1px solid var(--line)}
-tbody tr{border-bottom:1px solid var(--line);transition:background .1s}
-tbody tr:hover{background:var(--bg3)}
-tbody tr:last-child{border-bottom:none}
-td{padding:8px 7px;text-align:center;vertical-align:middle;font-size:12px}
-td.left{text-align:left}
-td.mono{font-family:'DM Mono',monospace;font-size:11px}
-td.dep{color:var(--red);font-family:'DM Mono',monospace;font-size:11px}
-td.ins{color:var(--blu);font-family:'DM Mono',monospace;font-size:11px}
-td.tps{color:var(--ylw);font-family:'DM Mono',monospace;font-size:11px}
-td.tps-tot{color:var(--ylw);font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
-.empty-msg td{text-align:center;padding:40px;color:var(--tx3);font-size:13px}
-.badge{display:inline-block;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:500;letter-spacing:.2px}
-.b-faire{background:#1e2333;color:var(--tx2)}
+/* ── ENTRY CARDS ── */
+.entry-card{background:var(--bg2);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .15s}
+.entry-card:active{border-color:var(--line2)}
+.ec-head{padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ec-title{font-size:16px;font-weight:600;color:var(--tx);line-height:1.2}
+.ec-sub{font-size:12px;color:var(--tx2);margin-top:3px}
+.ec-body{padding:0 16px 14px;display:flex;flex-direction:column;gap:10px}
+.ec-section{}
+.ec-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.ec-section-label.red{color:var(--red)}
+.ec-section-label.grn{color:var(--grn)}
+.ec-section-label.ylw{color:var(--ylw)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:8px;padding:5px 10px;font-size:13px;display:flex;align-items:center;gap:5px;font-weight:500}
+.chip-label{font-size:11px;font-weight:400;opacity:.7}
+.chip.red{background:var(--red-d);border:1px solid var(--red-m);color:var(--red)}
+.chip.grn{background:var(--grn-d);border:1px solid var(--grn-m);color:var(--grn)}
+.chip.ylw{background:var(--ylw-d);border:1px solid var(--ylw-m);color:var(--ylw)}
+.ec-footer{padding:10px 16px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ec-rem{font-size:12px;color:var(--tx2);font-style:italic;flex:1}
+.btn-del{background:var(--red-d);border:1px solid var(--red-m);color:var(--red);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-del:active{opacity:.7}
+.badge{display:inline-block;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:500}
+.b-faire{background:var(--bg4);color:var(--tx2)}
 .b-cours{background:var(--ylw-d);color:var(--ylw);border:1px solid var(--ylw-m)}
 .b-done{background:var(--grn-d);color:var(--grn);border:1px solid var(--grn-m)}
-.b-attente{background:#1a1f30;color:var(--blu);border:1px solid var(--blu-d)}
-.btn-del{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:13px;padding:3px 6px;border-radius:5px;transition:all .15s}
-.btn-del:hover{color:var(--red);background:var(--red-d)}
+.b-attente{background:var(--blu-d);color:var(--blu);border:1px solid #0a2030}
+.empty-state{text-align:center;padding:48px 20px;color:var(--tx2);font-size:15px}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-hint{font-size:13px;color:var(--tx3);margin-top:6px}
+
+/* ── SEARCH BAR ── */
+.searchbar{background:var(--bg3);border:1.5px solid var(--line2);border-radius:12px;padding:12px 16px;color:var(--tx);font-size:15px;font-family:'Inter',sans-serif;width:100%;outline:none;-webkit-appearance:none}
+.searchbar:focus{border-color:var(--acc)}
+.filter-row{display:flex;gap:8px}
+.filter-chip{padding:8px 14px;border-radius:20px;border:1.5px solid var(--line2);background:transparent;color:var(--tx2);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all .15s;-webkit-appearance:none}
+.filter-chip.active{background:var(--acc-m);border-color:var(--acc);color:var(--acc);font-weight:500}
 
 /* ── RECAP ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.kpi-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rl);padding:16px 18px}
-.kpi-val{font-size:28px;font-weight:300;font-family:'DM Mono',monospace;line-height:1;margin-bottom:4px}
-.kpi-label{font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px;font-weight:500}
-.kpi-card.red .kpi-val{color:var(--red)}
-.kpi-card.grn .kpi-val{color:var(--grn)}
-.kpi-card.ylw .kpi-val{color:var(--ylw)}
-.kpi-card.acc .kpi-val{color:var(--acc2)}
-
-.recap-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.recap-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
-.recap-card-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-.recap-card-head h3{font-size:12px;font-weight:600;color:var(--tx)}
-.recap-item{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;border-top:1px solid var(--line)}
-.recap-item:hover{background:var(--bg3)}
-.recap-name{font-size:12px;color:var(--tx2)}
-.recap-num{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
-.recap-unit{font-size:10px;color:var(--tx3);margin-left:4px}
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.kpi-val{font-size:32px;font-weight:300;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px}
+.kpi-label{font-size:12px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.kpi.acc .kpi-val{color:var(--acc)}
+.kpi.grn .kpi-val{color:var(--grn)}
+.kpi.ylw .kpi-val{color:var(--ylw)}
+.kpi.red .kpi-val{color:var(--red)}
+.recap-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.recap-item:first-child{border-top:none}
+.recap-name{font-size:14px;color:var(--tx2)}
+.recap-num{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.recap-unit{font-size:11px;color:var(--tx3);margin-left:3px}
 .num-red{color:var(--red)}
 .num-grn{color:var(--grn)}
 .num-ylw{color:var(--ylw)}
-
-.temps-full{grid-column:1/-1}
-.temps-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.temps-grid .recap-item:nth-child(odd){border-right:1px solid var(--line)}
+.section-divider{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;padding:4px 0}
 
 /* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
-
-/* ── ANIMATIONS ── */
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.section.active{animation:fadeIn .2s ease}
-
-@media(max-width:768px){
-  .shell{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}
-  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:8px;gap:4px;border-right:none;border-bottom:1px solid var(--line);overflow-x:auto}
-  .nav-section{display:none}
-  .nav-btn{padding:7px 12px;font-size:12px;white-space:nowrap;width:auto;margin:0}
-  .nav-btn[style*="pointer-events:none"]{display:none}
-  .main{padding:12px;gap:14px}
-  .form-grid{grid-template-columns:1fr}
-  .row2,.row3,.row4{grid-template-columns:1fr 1fr}
-  .kpi-grid{grid-template-columns:1fr 1fr}
-  .recap-cols{grid-template-columns:1fr}
-  .temps-grid{grid-template-columns:1fr}
-  .temps-grid .recap-item:nth-child(odd){border-right:none}
-  .topbar{padding:0 14px;height:48px;flex-wrap:wrap;gap:6px}
-  .topbar-right{gap:6px}
-  .kpi-pill{font-size:11px;padding:3px 8px}
-  .logo{font-size:13px}
-  .card-body{padding:14px}
-  .tbl-wrap{font-size:11px}
-  td,th{padding:5px 4px}
-  .table-toolbar{gap:6px}
-  .search-wrap{min-width:120px}
-  .btn-export span{display:none}
-}
-@media(max-width:480px){
-  .row3,.row4{grid-template-columns:1fr 1fr}
-  .topbar-right{display:none}
-}
-
-/* ── MOBILE CARD VIEW ─────────────────────────────────────────────── */
-.card-list{display:none;flex-direction:column;gap:10px}
-.entry-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
-.entry-card-head{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:8px}
-.entry-card-title{font-size:13px;font-weight:600;color:var(--tx);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.entry-card-meta{font-size:11px;color:var(--tx2)}
-.entry-card-body{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
-.entry-section{display:flex;flex-direction:column;gap:4px}
-.entry-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
-.entry-section-title.red{color:var(--red)}
-.entry-section-title.grn{color:var(--grn)}
-.entry-section-title.ylw{color:var(--ylw)}
-.entry-chips{display:flex;flex-wrap:wrap;gap:5px}
-.chip{background:var(--bg4);border:1px solid var(--line2);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--tx2);display:flex;gap:4px;align-items:center}
-.chip .chip-label{color:var(--tx3);font-size:10px}
-.chip .chip-val{color:var(--tx);font-weight:500;font-family:'DM Mono',monospace}
-.chip.red{background:var(--red-d);border-color:var(--red-m)}
-.chip.red .chip-val{color:var(--red)}
-.chip.grn{background:var(--grn-d);border-color:var(--grn-m)}
-.chip.grn .chip-val{color:var(--grn)}
-.chip.ylw{background:var(--ylw-d);border-color:var(--ylw-m)}
-.chip.ylw .chip-val{color:var(--ylw)}
-.entry-card-footer{padding:8px 14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
-.entry-rem{font-size:11px;color:var(--tx2);flex:1;font-style:italic}
-
-@media(max-width:768px){
-  .shell{grid-template-columns:1fr;grid-template-rows:auto auto 1fr}
-  .sidebar{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:8px 10px;gap:4px;border-right:none;border-bottom:1px solid var(--line);overflow-x:auto;align-items:center}
-  .nav-section{display:none}
-  .nav-btn{padding:8px 14px;font-size:12px;white-space:nowrap;width:auto;margin:0;border-radius:20px}
-  .nav-btn[style*="pointer-events:none"]{display:none}
-  .main{padding:12px;gap:14px}
-  .form-grid{grid-template-columns:1fr}
-  .row2{grid-template-columns:1fr 1fr}
-  .row3{grid-template-columns:1fr 1fr 1fr}
-  .row4{grid-template-columns:1fr 1fr}
-  .kpi-grid{grid-template-columns:1fr 1fr}
-  .recap-cols{grid-template-columns:1fr}
-  .temps-grid{grid-template-columns:1fr}
-  .temps-grid .recap-item:nth-child(odd){border-right:none}
-  .topbar{padding:0 14px;height:48px}
-  .topbar-right{gap:5px}
-  .kpi-pill{font-size:10px;padding:3px 7px}
-  .logo{font-size:13px}
-  .card-body{padding:12px}
-  /* Tableau → masqué sur mobile, cartes à la place */
-  .tbl-wrap{display:none}
-  .card-list{display:flex}
-}
-@media(max-width:480px){
-  .row3{grid-template-columns:1fr 1fr}
-  .row4{grid-template-columns:1fr 1fr}
-  .topbar-right{display:none}
-}
-
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="shell">
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="logo">
-      <div class="logo-icon">⚡</div>
-      Suivi Chantier
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="app-name">⚡ Chantier</div>
     </div>
-    <div class="topbar-right">
-      <div class="kpi-pill">Lignes : <span id="top-count">0</span></div>
-      <div class="kpi-pill">H. pose : <span id="top-hpose">0</span>h</div>
-      <div class="kpi-pill">H. équipe : <span id="top-hequipe">0</span>h</div>
+    <div class="header-kpis">
+      <div class="hkpi acc"><span class="hkpi-val" id="top-count">0</span><span class="hkpi-label">lignes</span></div>
+      <div class="hkpi grn"><span class="hkpi-val" id="top-done">0</span><span class="hkpi-label">terminées</span></div>
+      <div class="hkpi ylw"><span class="hkpi-val" id="top-hpose">0</span><span class="hkpi-label">h pose</span></div>
+      <div class="hkpi ylw"><span class="hkpi-val" id="top-hteam">0</span><span class="hkpi-label">h équipe</span></div>
     </div>
-  </header>
+  </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="nav-section">Navigation</div>
-    <button class="nav-btn active" onclick="goTo('saisie',this)">
-      <span class="dot dot-acc"></span> Nouvelle entrée
-    </button>
-    <button class="nav-btn" onclick="goTo('tableau',this)">
-      <span class="dot dot-blu"></span> Tableau complet
-    </button>
-    <button class="nav-btn" onclick="goTo('recap',this)">
-      <span class="dot dot-grn"></span> Récapitulatif
-    </button>
+  <!-- CONTENT -->
+  <div class="content">
 
-    <div class="nav-section" style="margin-top:24px">Dépose</div>
-    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
-      <span class="dot dot-red"></span> BBG · Bouton · Ventouse
-    </button>
-    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
-      <span class="dot dot-red"></span> Câble · Tube · Caméra
-    </button>
-    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
-      <span class="dot dot-red"></span> Support · Boîte RJ45
-    </button>
+    <!-- PAGE SAISIE -->
+    <div class="page active" id="page-saisie">
 
-    <div class="nav-section" style="margin-top:8px">Installation</div>
-    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
-      <span class="dot dot-grn"></span> BBG · BCR · Bouton
-    </button>
-    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
-      <span class="dot dot-grn"></span> Câble · Tube · Perc · CF
-    </button>
-    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
-      <span class="dot dot-grn"></span> Finition · Cam · RJ45
-    </button>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-
-    <!-- ══ SAISIE ══ -->
-    <div class="section active" id="sec-saisie">
-
-      <!-- Localisation + Temps -->
-      <div class="form-grid">
-        <div class="card">
-          <div class="card-head">
-            <h2>📍 Localisation</h2>
-            <span class="card-tag tag-acc">obligatoire *</span>
-          </div>
-          <div class="card-body field-group">
-            <div class="row3">
-              <div class="field"><label>Bâtiment</label><input id="f-bat" placeholder="Bat A" class="accent-border-left acc"></div>
-              <div class="field"><label>Étage</label><input id="f-etage" placeholder="RDC" class="accent-border-left acc"></div>
-              <div class="field"><label>Zone</label><input id="f-zone" placeholder="Hall Nord" class="accent-border-left acc"></div>
+      <div class="scard">
+        <div class="scard-head"><h2>📍 Localisation</h2><span class="stag stag-acc">requis</span></div>
+        <div class="scard-body">
+          <div class="field-group">
+            <div class="r3">
+              <div class="field"><label>Bâtiment</label><input id="f-bat" placeholder="A"></div>
+              <div class="field"><label>Étage</label><input id="f-etage" placeholder="RDC"></div>
+              <div class="field"><label>Zone</label><input id="f-zone" placeholder="Hall"></div>
             </div>
-            <div class="field"><label>Local / Porte *</label><input id="f-local" placeholder="Porte P01 – Salle de réunion" class="accent-border-left acc"></div>
+            <div class="field"><label>Local / Porte *</label><input id="f-local" placeholder="Porte P01 – Accueil" style="font-size:16px"></div>
           </div>
         </div>
+      </div>
 
-        <div class="card">
-          <div class="card-head">
-            <h2>⏱ Temps &amp; Statut</h2>
-            <span class="card-tag tag-ylw">planning</span>
-          </div>
-          <div class="card-body field-group">
-            <div class="row3">
-              <div class="field"><label>Pose (h)</label><input id="f-tpose" type="number" min="0" step="0.5" placeholder="0" class="accent-border-left ylw"></div>
-              <div class="field"><label>Progr. (h)</label><input id="f-tprog" type="number" min="0" step="0.5" placeholder="0" class="accent-border-left ylw"></div>
-              <div class="field"><label>Intervenants</label><input id="f-interv" type="number" min="1" step="1" placeholder="1" class="accent-border-left ylw"></div>
+      <div class="scard">
+        <div class="scard-head"><h2>🔴 Dépose</h2><span class="stag stag-red">à retirer</span></div>
+        <div class="scard-body">
+          <div class="field-group">
+            <div class="r3">
+              <div class="field field-accent-red"><label>BBG</label><input id="d-bbg" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-red"><label>Bouton</label><input id="d-btn" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-red"><label>Ventouse</label><input id="d-vent" type="number" min="0" placeholder="0" inputmode="numeric"></div>
             </div>
-            <div class="row2">
-              <div class="field"><label>Statut</label>
-                <select id="f-statut" class="accent-border-left acc">
-                  <option>À faire</option><option>En cours</option><option>Terminé</option><option>En attente</option>
-                </select>
-              </div>
-              <div class="field"><label>Remarques</label><textarea id="f-rem" placeholder="Notes..."></textarea></div>
+            <div class="r2">
+              <div class="field field-accent-red"><label>Câble (m)</label><input id="d-cable" type="number" min="0" placeholder="0" inputmode="decimal"></div>
+              <div class="field field-accent-red"><label>Tube (m)</label><input id="d-tube" type="number" min="0" placeholder="0" inputmode="decimal"></div>
+            </div>
+            <div class="r3">
+              <div class="field field-accent-red"><label>Caméra</label><input id="d-cam" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-red"><label>Support</label><input id="d-supp" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-red"><label>RJ45</label><input id="d-rj45" type="number" min="0" placeholder="0" inputmode="numeric"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Dépose -->
-      <div class="card">
-        <div class="card-head">
-          <h2>🔴 Dépose</h2>
-          <span class="card-tag tag-red">matériel à retirer</span>
-        </div>
-        <div class="card-body field-group">
-          <div class="row4">
-            <div class="field"><label>BBG</label><input id="d-bbg" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-            <div class="field"><label>Bouton sortie</label><input id="d-btn" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-            <div class="field"><label>Ventouse</label><input id="d-vent" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-            <div class="field"><label>Caméra</label><input id="d-cam" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-          </div>
-          <div class="row4">
-            <div class="field"><label>Câble (m)</label><input id="d-cable" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-            <div class="field"><label>Tube (m)</label><input id="d-tube" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-            <div class="field"><label>Support</label><input id="d-supp" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-            <div class="field"><label>Boîte RJ45</label><input id="d-rj45" type="number" min="0" placeholder="0" class="accent-border-left"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Installation -->
-      <div class="card">
-        <div class="card-head">
-          <h2>🟢 Installation</h2>
-          <span class="card-tag tag-grn">matériel à poser</span>
-        </div>
-        <div class="card-body field-group">
-          <div class="row4">
-            <div class="field"><label>BBG</label><input id="i-bbg" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>BCR</label><input id="i-bcr" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>Bouton sortie</label><input id="i-btn" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>Ventouse</label><input id="i-vent" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-          </div>
-          <div class="row4">
-            <div class="field"><label>Câble (m)</label><input id="i-cable" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>Tube (m)</label><input id="i-tube" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>Percement</label><input id="i-perc" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>Coupe-feu</label>
-              <select id="i-cf" class="accent-border-left grn"><option>N/A</option><option>Oui</option><option>Non</option></select>
+      <div class="scard">
+        <div class="scard-head"><h2>🟢 Installation</h2><span class="stag stag-grn">à poser</span></div>
+        <div class="scard-body">
+          <div class="field-group">
+            <div class="r3">
+              <div class="field field-accent-grn"><label>BBG</label><input id="i-bbg" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-grn"><label>BCR</label><input id="i-bcr" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-grn"><label>Bouton</label><input id="i-btn" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+            </div>
+            <div class="r3">
+              <div class="field field-accent-grn"><label>Ventouse</label><input id="i-vent" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-grn"><label>Câble (m)</label><input id="i-cable" type="number" min="0" placeholder="0" inputmode="decimal"></div>
+              <div class="field field-accent-grn"><label>Tube (m)</label><input id="i-tube" type="number" min="0" placeholder="0" inputmode="decimal"></div>
+            </div>
+            <div class="r3">
+              <div class="field field-accent-grn"><label>Percement</label><input id="i-perc" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-grn"><label>Coupe-feu</label><select id="i-cf"><option>N/A</option><option>Oui</option><option>Non</option></select></div>
+              <div class="field field-accent-grn"><label>Finition</label><select id="i-fin"><option value="">–</option><option>Oui</option><option>Non</option></select></div>
+            </div>
+            <div class="r3">
+              <div class="field field-accent-grn"><label>Caméra</label><input id="i-cam" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-grn"><label>Support</label><input id="i-supp" type="number" min="0" placeholder="0" inputmode="numeric"></div>
+              <div class="field field-accent-grn"><label>RJ45</label><input id="i-rj45" type="number" min="0" placeholder="0" inputmode="numeric"></div>
             </div>
           </div>
-          <div class="row4">
-            
-            <div class="field"><label>Finition</label><select id="i-fin" class="accent-border-left grn"><option value="">–</option><option>Oui</option><option>Non</option></select></div>
-            <div class="field"><label>Caméra</label><input id="i-cam" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-            <div class="field"><label>Support</label><input id="i-supp" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
-          </div>
-          <div class="row4">
-            <div class="field"><label>Boîte RJ45</label><input id="i-rj45" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+        </div>
+      </div>
+
+      <div class="scard">
+        <div class="scard-head"><h2>⏱ Temps &amp; Statut</h2><span class="stag stag-ylw">planning</span></div>
+        <div class="scard-body">
+          <div class="field-group">
+            <div class="r3">
+              <div class="field field-accent-ylw"><label>Pose (h)</label><input id="f-tpose" type="number" min="0" step="0.5" placeholder="0" inputmode="decimal"></div>
+              <div class="field field-accent-ylw"><label>Prog. (h)</label><input id="f-tprog" type="number" min="0" step="0.5" placeholder="0" inputmode="decimal"></div>
+              <div class="field field-accent-ylw"><label>Interv.</label><input id="f-interv" type="number" min="1" placeholder="1" inputmode="numeric"></div>
+            </div>
+            <div class="field"><label>Statut</label>
+              <select id="f-statut"><option>À faire</option><option>En cours</option><option>Terminé</option><option>En attente</option></select>
+            </div>
+            <div class="field"><label>Remarques</label><textarea id="f-rem" placeholder="Notes libres..."></textarea></div>
           </div>
         </div>
       </div>
 
-      <div class="btn-row">
-        <button class="btn-primary" onclick="addEntry()">+ Ajouter la ligne</button>
-        <button class="btn-sec" onclick="clearForm()">Effacer le formulaire</button>
-        <div class="toast" id="toast">✓ Ligne ajoutée avec succès</div>
-      </div>
+      <button class="btn-full" onclick="addEntry()">+ Ajouter la ligne</button>
+      <button class="btn-ghost" onclick="clearForm()">Effacer le formulaire</button>
+      <div style="height:8px"></div>
     </div>
 
-    <!-- ══ TABLEAU ══ -->
-    <div class="section" id="sec-tableau">
-      <div class="table-toolbar">
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="search" placeholder="Rechercher…" oninput="renderTable()">
-        </div>
-        <select class="filter-sel" id="filtre-statut" onchange="renderTable()">
-          <option value="">Tous les statuts</option>
-          <option>À faire</option><option>En cours</option><option>Terminé</option><option>En attente</option>
-        </select>
-        <button class="btn-export" onclick="exportCSV()">↓ Export CSV</button>
-        <span class="count-badge" id="count-label">0 ligne</span>
+    <!-- PAGE LISTE -->
+    <div class="page" id="page-liste">
+      <input class="searchbar" type="text" id="search" placeholder="🔍  Rechercher un local, une zone..." oninput="renderList()">
+      <div class="filter-row" id="filter-row" style="overflow-x:auto;padding-bottom:2px">
+        <button class="filter-chip active" onclick="setFilter('',this)">Tous</button>
+        <button class="filter-chip" onclick="setFilter('À faire',this)">À faire</button>
+        <button class="filter-chip" onclick="setFilter('En cours',this)">En cours</button>
+        <button class="filter-chip" onclick="setFilter('Terminé',this)">Terminé</button>
+        <button class="filter-chip" onclick="setFilter('En attente',this)">En attente</button>
       </div>
-
-      <div class="tbl-wrap">
-        <table id="main-table">
-          <thead>
-            <tr class="thead-group">
-              <th colspan="4" class="th-loc">Localisation</th>
-              <th colspan="8" class="th-dep">Dépose</th>
-              <th colspan="13" class="th-ins">Installation</th>
-              <th colspan="4" class="th-tps">Temps</th>
-              <th colspan="3" class="th-oth">Statut / Notes</th>
-            </tr>
-            <tr class="thead-col">
-              <th>Bat.</th><th>Zone</th><th>Ét.</th><th>Local</th>
-              <th>BBG</th><th>Btn</th><th>Vent</th><th>Câble</th><th>Tube</th><th>Cam</th><th>Supp</th><th>RJ45</th>
-              <th>BBG</th><th>BCR</th><th>Btn</th><th>Vent</th><th>Câble</th><th>Tube</th><th>Perc</th><th>CF</th><th>Fin</th><th>Cam</th><th>Supp</th><th>RJ45</th>
-              <th>Pose</th><th>Prog</th><th>Interv</th><th>Tot.h</th>
-              <th>Statut</th><th>Rem.</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
+      <div id="entry-list"></div>
+      <div style="height:8px"></div>
     </div>
 
-    <!-- ══ RÉCAP ══ -->
-    <div class="section" id="sec-recap">
-      <div class="kpi-grid" id="kpis"></div>
+    <!-- PAGE RECAP -->
+    <div class="page" id="page-recap">
+      <div class="kpi-row" id="kpis"></div>
 
-      <div class="recap-cols">
-        <div class="recap-card">
-          <div class="recap-card-head">
-            <h3>🔴 Dépose</h3>
-            <span class="card-tag tag-red">totaux</span>
-          </div>
-          <div id="r-depose"></div>
-        </div>
-        <div class="recap-card">
-          <div class="recap-card-head">
-            <h3>🟢 Installation</h3>
-            <span class="card-tag tag-grn">totaux</span>
-          </div>
-          <div id="r-install"></div>
-        </div>
-        <div class="recap-card temps-full">
-          <div class="recap-card-head">
-            <h3>⏱ Temps</h3>
-            <span class="card-tag tag-ylw">totaux</span>
-          </div>
-          <div class="temps-grid" id="r-temps"></div>
-        </div>
+      <div class="scard">
+        <div class="scard-head"><h2>🔴 Dépose</h2><span class="stag stag-red">totaux</span></div>
+        <div id="r-depose"></div>
       </div>
+      <div class="scard">
+        <div class="scard-head"><h2>🟢 Installation</h2><span class="stag stag-grn">totaux</span></div>
+        <div id="r-install"></div>
+      </div>
+      <div class="scard">
+        <div class="scard-head"><h2>⏱ Temps</h2><span class="stag stag-ylw">totaux</span></div>
+        <div id="r-temps"></div>
+      </div>
+
+      <button class="btn-ghost" onclick="exportCSV()">↓ Exporter en CSV</button>
+      <div style="height:8px"></div>
     </div>
 
-  </main>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-saisie" onclick="goTo('saisie',this)">
+      <span class="nav-icon">✏️</span>
+      <span class="nav-label">Saisie</span>
+    </button>
+    <button class="nav-item" id="nav-liste" onclick="goTo('liste',this)">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Liste</span>
+    </button>
+    <button class="nav-item" id="nav-recap" onclick="goTo('recap',this)">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Récap</span>
+    </button>
+  </div>
 </div>
+
+<div class="toast" id="toast">✓ Ligne ajoutée</div>
 
 <script>
 let data = [];
+let activeFilter = '';
 
 function n(id){const v=document.getElementById(id)?.value;return(!v||v==='')? 0:parseFloat(v)||0}
 function s(id){return document.getElementById(id)?.value||''}
 function set(id,v){const el=document.getElementById(id);if(el)el.value=v}
-function v0(x){return x?x:'–'}
-function vm(x){return x||''}
 
-function goTo(sec, btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('sec-'+sec).classList.add('active');
+function goTo(page, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
   btn.classList.add('active');
-  if(sec==='recap')renderRecap();
-  if(sec==='tableau')renderTable();
+  document.querySelector('.content').scrollTop=0;
+  if(page==='liste')renderList();
+  if(page==='recap')renderRecap();
+}
+
+function setFilter(f, btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
 }
 
 function addEntry(){
   const local=s('f-local').trim();
   if(!local){
-    document.getElementById('f-local').focus();
-    document.getElementById('f-local').style.borderColor='var(--red)';
-    setTimeout(()=>document.getElementById('f-local').style.borderColor='',1500);
+    const el=document.getElementById('f-local');
+    el.style.borderColor='var(--red)';
+    el.focus();
+    setTimeout(()=>el.style.borderColor='',2000);
     return;
   }
   const interv=n('f-interv')||1;
@@ -534,11 +370,12 @@ function addEntry(){
     statut:s('f-statut'),rem:s('f-rem')
   };
   data.push(e);
+  saveData();
   clearForm();
   updateTopbar();
   const toast=document.getElementById('toast');
-  toast.style.display='flex';
-  setTimeout(()=>toast.style.display='none',2500);
+  toast.style.display='block';
+  setTimeout(()=>toast.style.display='none',2000);
 }
 
 function clearForm(){
@@ -550,14 +387,16 @@ function clearForm(){
 }
 
 function delEntry(id){
+  if(!confirm('Supprimer cette ligne ?'))return;
   data=data.filter(e=>e.id!==id);
-  renderTable();renderRecap();updateTopbar();
+  saveData();renderList();renderRecap();updateTopbar();
 }
 
 function updateTopbar(){
   document.getElementById('top-count').textContent=data.length;
+  document.getElementById('top-done').textContent=data.filter(e=>e.statut==='Terminé').length;
   document.getElementById('top-hpose').textContent=+(data.reduce((a,e)=>a+e.t.pose,0)).toFixed(1);
-  document.getElementById('top-hequipe').textContent=+(data.reduce((a,e)=>a+e.t.total,0)).toFixed(1);
+  document.getElementById('top-hteam').textContent=+(data.reduce((a,e)=>a+e.t.total,0)).toFixed(1);
 }
 
 function badgeHtml(st){
@@ -565,180 +404,96 @@ function badgeHtml(st){
   return `<span class="badge ${m[st]||'b-faire'}">${st}</span>`;
 }
 
-function renderTable(){
+function chip(label,val,cls){
+  if(!val||val===0||val==='–'||val==='')return '';
+  return `<div class="chip ${cls}"><span class="chip-label">${label}</span> ${val}</div>`;
+}
+
+function renderList(){
   const q=document.getElementById('search').value.toLowerCase();
-  const fs=document.getElementById('filtre-statut').value;
   const rows=data.filter(e=>{
     const txt=(e.bat+e.zone+e.etage+e.local+e.rem).toLowerCase();
-    return txt.includes(q)&&(fs===''||e.statut===fs);
+    return txt.includes(q)&&(activeFilter===''||e.statut===activeFilter);
   });
-  document.getElementById('count-label').textContent=rows.length+' ligne'+(rows.length!==1?'s':'');
-  const tb=document.getElementById('tbody');
+  const el=document.getElementById('entry-list');
   if(!rows.length){
-    tb.innerHTML=`<tr class="empty-msg"><td colspan="32">Aucune donnée – remplis le formulaire dans "Nouvelle entrée"</td></tr>`;
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div>Aucune entrée</div><div class="empty-hint">Ajoute des lignes via l'onglet Saisie</div></div>`;
     return;
   }
-  renderCards();
-  tb.innerHTML=rows.map(e=>`
-    <tr>
-      <td class="left">${v0(e.bat)}</td><td class="left">${v0(e.zone)}</td><td>${v0(e.etage)}</td><td class="left" style="min-width:120px;font-weight:500">${e.local}</td>
-      <td class="dep">${vm(e.d.bbg)}</td><td class="dep">${vm(e.d.btn)}</td><td class="dep">${vm(e.d.vent)}</td><td class="dep">${vm(e.d.cable)}</td><td class="dep">${vm(e.d.tube)}</td><td class="dep">${vm(e.d.cam)}</td><td class="dep">${vm(e.d.supp)}</td><td class="dep">${vm(e.d.rj45)}</td>
-      <td class="ins">${vm(e.i.bbg)}</td><td class="ins">${vm(e.i.bcr)}</td><td class="ins">${vm(e.i.btn)}</td><td class="ins">${vm(e.i.vent)}</td><td class="ins">${vm(e.i.cable)}</td><td class="ins">${vm(e.i.tube)}</td><td class="ins">${vm(e.i.perc)}</td><td class="ins" style="font-size:10px">${e.i.cf}</td><td class="ins" style="font-size:10px;max-width:70px">${v0(e.i.fin)}</td><td class="ins">${vm(e.i.cam)}</td><td class="ins">${vm(e.i.supp)}</td><td class="ins">${vm(e.i.rj45)}</td>
-      <td class="tps">${vm(e.t.pose)}</td><td class="tps">${vm(e.t.prog)}</td><td class="tps">${e.t.interv}</td><td class="tps-tot">${e.t.total||''}</td>
-      <td>${badgeHtml(e.statut)}</td><td class="left" style="font-size:11px;color:var(--tx2);max-width:90px">${v0(e.rem)}</td>
-      <td><button class="btn-del" onclick="delEntry(${e.id})" title="Supprimer">✕</button></td>
-    </tr>`).join('');
+  const depF=[['BBG','bbg'],['Btn','btn'],['Vent','vent'],['Câble','cable'],['Tube','tube'],['Cam','cam'],['Supp','supp'],['RJ45','rj45']];
+  const insF=[['BBG','bbg'],['BCR','bcr'],['Btn','btn'],['Vent','vent'],['Câble','cable'],['Tube','tube'],['Perc','perc'],['CF','cf'],['Fin','fin'],['Cam','cam'],['Supp','supp'],['RJ45','rj45']];
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:10px">'+rows.map(e=>{
+    const loc=[e.bat,e.etage,e.zone].filter(Boolean).join(' · ');
+    const dc=depF.map(([l,k])=>chip(l,e.d[k],'red')).join('');
+    const ic=insF.map(([l,k])=>chip(l,e.i[k],'grn')).join('');
+    const tc=[chip('Pose',e.t.pose?e.t.pose+'h':'','ylw'),chip('Prog',e.t.prog?e.t.prog+'h':'','ylw'),chip('Total',e.t.total?e.t.total+'h':'','ylw')].join('');
+    return `<div class="entry-card">
+      <div class="ec-head">
+        <div><div class="ec-title">${e.local}</div>${loc?`<div class="ec-sub">${loc}</div>`:''}</div>
+        ${badgeHtml(e.statut)}
+      </div>
+      <div class="ec-body">
+        ${dc?`<div class="ec-section"><div class="ec-section-label red">Dépose</div><div class="chips">${dc}</div></div>`:''}
+        ${ic?`<div class="ec-section"><div class="ec-section-label grn">Installation</div><div class="chips">${ic}</div></div>`:''}
+        ${tc?`<div class="ec-section"><div class="ec-section-label ylw">Temps</div><div class="chips">${tc}</div></div>`:''}
+      </div>
+      <div class="ec-footer">
+        <span class="ec-rem">${e.rem||''}</span>
+        <button class="btn-del" onclick="delEntry(${e.id})">Supprimer</button>
+      </div>
+    </div>`;
+  }).join('')+'</div>';
 }
 
-function sum(f){
-  return data.reduce((a,e)=>{
-    let val=e;f.split('.').forEach(p=>val=val?.[p]);
-    return a+(parseFloat(val)||0);
-  },0);
-}
+function sum(f){return data.reduce((a,e)=>{let v=e;f.split('.').forEach(p=>v=v?.[p]);return a+(parseFloat(v)||0);},0)}
 
-function recapItem(label,val,unit,cls){
+function ri(label,val,unit,cls){
   return `<div class="recap-item"><span class="recap-name">${label}</span><span><span class="recap-num ${cls}">${val||0}</span><span class="recap-unit">${unit}</span></span></div>`;
 }
 
 function renderRecap(){
-  const total=data.length;
-  const done=data.filter(e=>e.statut==='Terminé').length;
   const hPose=+sum('t.pose').toFixed(1);
   const hProg=+sum('t.prog').toFixed(1);
   const hTeam=+(data.reduce((a,e)=>a+e.t.total,0)).toFixed(1);
-
   document.getElementById('kpis').innerHTML=`
-    <div class="kpi-card acc"><div class="kpi-val">${total}</div><div class="kpi-label">Lignes saisies</div></div>
-    <div class="kpi-card grn"><div class="kpi-val">${done}</div><div class="kpi-label">Terminées</div></div>
-    <div class="kpi-card ylw"><div class="kpi-val">${hPose}</div><div class="kpi-label">Heures pose</div></div>
-    <div class="kpi-card red"><div class="kpi-val">${hTeam}</div><div class="kpi-label">Heures équipe</div></div>
-  `;
-
+    <div class="kpi acc"><div class="kpi-val">${data.length}</div><div class="kpi-label">Lignes</div></div>
+    <div class="kpi grn"><div class="kpi-val">${data.filter(e=>e.statut==='Terminé').length}</div><div class="kpi-label">Terminées</div></div>
+    <div class="kpi ylw"><div class="kpi-val">${hPose}</div><div class="kpi-label">H. pose</div></div>
+    <div class="kpi red"><div class="kpi-val">${hTeam}</div><div class="kpi-label">H. équipe</div></div>`;
   document.getElementById('r-depose').innerHTML=[
     ['BBG','d.bbg','u'],['Bouton','d.btn','u'],['Ventouse','d.vent','u'],
     ['Câble','d.cable','m'],['Tube','d.tube','m'],['Caméra','d.cam','u'],
     ['Support','d.supp','u'],['Boîte RJ45','d.rj45','u']
-  ].map(([l,f,u])=>recapItem(l,sum(f),u,'num-red')).join('');
-
+  ].map(([l,f,u])=>ri(l,sum(f),u,'num-red')).join('');
   document.getElementById('r-install').innerHTML=[
     ['BBG','i.bbg','u'],['BCR','i.bcr','u'],['Bouton','i.btn','u'],['Ventouse','i.vent','u'],
     ['Câble','i.cable','m'],['Tube','i.tube','m'],['Percement','i.perc','u'],
     ['Caméra','i.cam','u'],['Support','i.supp','u'],['Boîte RJ45','i.rj45','u']
-  ].map(([l,f,u])=>recapItem(l,sum(f),u,'num-grn')).join('');
-
+  ].map(([l,f,u])=>ri(l,sum(f),u,'num-grn')).join('');
   document.getElementById('r-temps').innerHTML=[
     ['Heures de pose',hPose,'h'],
     ['Heures de programmation',hProg,'h'],
-    ['Heures équipe (pose × interv.)',hTeam,'h'],
+    ['Heures équipe',hTeam,'h'],
     ['Pose + programmation',+(hPose+hProg).toFixed(1),'h']
-  ].map(([l,v,u])=>`<div class="recap-item"><span class="recap-name">${l}</span><span><span class="recap-num num-ylw">${v}</span><span class="recap-unit">${u}</span></span></div>`).join('');
+  ].map(([l,v,u])=>ri(l,v,u,'num-ylw')).join('');
 }
 
 function exportCSV(){
   if(!data.length){alert('Aucune donnée.');return;}
-  const hdrs=['Bâtiment','Zone','Étage','Local',
-    'D-BBG','D-Bouton','D-Ventouse','D-Câble','D-Tube','D-Caméra','D-Support','D-RJ45',
-    'I-BBG','I-BCR','I-Bouton','I-Ventouse','I-Câble','I-Tube','I-Percement','I-CF','I-Finition','I-Caméra','I-Support','I-RJ45',
-    'Pose(h)','Prog(h)','Interv','Total-h','Statut','Remarques'];
-  const rows=data.map(e=>[
-    e.bat,e.zone,e.etage,e.local,
-    e.d.bbg,e.d.btn,e.d.vent,e.d.cable,e.d.tube,e.d.cam,e.d.supp,e.d.rj45,
-    e.i.bbg,e.i.bcr,e.i.btn,e.i.vent,e.i.cable,e.i.tube,e.i.perc,e.i.cf,e.i.fin,e.i.cam,e.i.supp,e.i.rj45,
-    e.t.pose,e.t.prog,e.t.interv,e.t.total,e.statut,e.rem
-  ].map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(';'));
-  const csv='\uFEFF'+[hdrs.join(';'),...rows].join('\n');
+  const hdrs=['Bâtiment','Zone','Étage','Local','D-BBG','D-Bouton','D-Ventouse','D-Câble','D-Tube','D-Caméra','D-Support','D-RJ45','I-BBG','I-BCR','I-Bouton','I-Ventouse','I-Câble','I-Tube','I-Percement','I-CF','I-Finition','I-Caméra','I-Support','I-RJ45','Pose(h)','Prog(h)','Interv','Total-h','Statut','Remarques'];
+  const rows=data.map(e=>[e.bat,e.zone,e.etage,e.local,e.d.bbg,e.d.btn,e.d.vent,e.d.cable,e.d.tube,e.d.cam,e.d.supp,e.d.rj45,e.i.bbg,e.i.bcr,e.i.btn,e.i.vent,e.i.cable,e.i.tube,e.i.perc,e.i.cf,e.i.fin,e.i.cam,e.i.supp,e.i.rj45,e.t.pose,e.t.prog,e.t.interv,e.t.total,e.statut,e.rem].map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(';'));
   const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='suivi_chantier_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent([hdrs.join(';'),...rows].join('\n'));
+  a.download='chantier_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
 }
 
+// ── localStorage ──
+function saveData(){try{localStorage.setItem('chantier_v2',JSON.stringify(data));}catch(e){}}
+function loadData(){try{const r=localStorage.getItem('chantier_v2');if(r)data=JSON.parse(r);}catch(e){data=[];}}
 
-function chip(label, val, cls){
-  if(!val && val!==0) return '';
-  if(val===0||val==='') return '';
-  return `<div class="chip ${cls}"><span class="chip-label">${label}</span><span class="chip-val">${val}</span></div>`;
-}
-
-function renderCards(){
-  const q=document.getElementById('search').value.toLowerCase();
-  const fs=document.getElementById('filtre-statut').value;
-  const rows=data.filter(e=>{
-    const txt=(e.bat+e.zone+e.etage+e.local+e.rem).toLowerCase();
-    return txt.includes(q)&&(fs===''||e.statut===fs);
-  });
-  const cl=document.getElementById('card-list');
-  if(!cl)return;
-  if(!rows.length){
-    cl.innerHTML=`<div style="text-align:center;padding:40px;color:var(--tx3);font-size:13px">Aucune donnée – remplis le formulaire dans "Nouvelle entrée"</div>`;
-    return;
-  }
-
-  const depFields=[['BBG','bbg'],['Btn','btn'],['Vent','vent'],['Câble','cable'],['Tube','tube'],['Cam','cam'],['Supp','supp'],['RJ45','rj45']];
-  const insFields=[['BBG','bbg'],['BCR','bcr'],['Btn','btn'],['Vent','vent'],['Câble','cable'],['Tube','tube'],['Perc','perc'],['CF','cf'],['Fin','fin'],['Cam','cam'],['Supp','supp'],['RJ45','rj45']];
-
-  cl.innerHTML=rows.map(e=>{
-    const loc=[e.bat,e.zone,e.etage].filter(Boolean).join(' · ');
-    const depChips=depFields.map(([l,k])=>chip(l,e.d[k],'red')).filter(Boolean).join('');
-    const insChips=insFields.map(([l,k])=>chip(l,e.i[k],'grn')).filter(Boolean).join('');
-    const tpsChips=[
-      chip('Pose',e.t.pose?e.t.pose+'h':'','ylw'),
-      chip('Prog',e.t.prog?e.t.prog+'h':'','ylw'),
-      chip('Interv',e.t.interv>1?e.t.interv:'','ylw'),
-      chip('Total',e.t.total?e.t.total+'h':'','ylw'),
-    ].filter(Boolean).join('');
-    return `<div class="entry-card">
-      <div class="entry-card-head">
-        <span class="entry-card-title">${e.local}</span>
-        ${loc?`<span class="entry-card-meta">${loc}</span>`:''}
-        ${badgeHtml(e.statut)}
-      </div>
-      <div class="entry-card-body">
-        ${depChips?`<div class="entry-section"><div class="entry-section-title red">Dépose</div><div class="entry-chips">${depChips}</div></div>`:''}
-        ${insChips?`<div class="entry-section"><div class="entry-section-title grn">Installation</div><div class="entry-chips">${insChips}</div></div>`:''}
-        ${tpsChips?`<div class="entry-section"><div class="entry-section-title ylw">Temps</div><div class="entry-chips">${tpsChips}</div></div>`:''}
-      </div>
-      <div class="entry-card-footer">
-        <span class="entry-rem">${e.rem||''}</span>
-        <button class="btn-del" onclick="delEntry(${e.id})" title="Supprimer">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── PERSISTENCE localStorage ──────────────────────────────────────────────
-function saveData(){
-  try{localStorage.setItem('chantier_data', JSON.stringify(data));}catch(e){}
-}
-function loadData(){
-  try{
-    const raw = localStorage.getItem('chantier_data');
-    if(raw){data = JSON.parse(raw);}
-  }catch(e){data=[];}
-}
-
-// Patch addEntry and delEntry to auto-save
-const _origAdd = addEntry;
-window.addEntry = function(){
-  _origAdd();
-  saveData();
-  updateTopbar();
-}
-const _origDel = delEntry;
-window.delEntry = function(id){
-  if(!confirm('Supprimer cette ligne ?'))return;
-  data=data.filter(e=>e.id!==id);
-  renderTable();renderRecap();updateTopbar();
-  saveData();
-}
-
-// Load on startup
 loadData();
 updateTopbar();
-renderTable();
-renderRecap();
-
 </script>
 </body>
 </html>
