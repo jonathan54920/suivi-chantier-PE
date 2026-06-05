@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi Chantier</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;
+  --bg2:#171b26;
+  --bg3:#1e2333;
+  --bg4:#252a3d;
+  --line:#2e3450;
+  --line2:#3d4468;
+  --tx:#e8ecf4;
+  --tx2:#8892b0;
+  --tx3:#5a6380;
+  --red:#ff4d4d;
+  --red-d:#2a0e0e;
+  --red-m:#3d1515;
+  --grn:#34d399;
+  --grn-d:#0a2218;
+  --grn-m:#0f3326;
+  --ylw:#fbbf24;
+  --ylw-d:#241a06;
+  --ylw-m:#332408;
+  --blu:#60a5fa;
+  --blu-d:#0c1a2e;
+  --acc:#6366f1;
+  --acc2:#818cf8;
+  --r:8px;
+  --rl:12px;
+  --rxl:16px;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-columns:220px 1fr;grid-template-rows:auto 1fr;min-height:100vh}
+.topbar{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--line);padding:0 28px;display:flex;align-items:center;height:56px;gap:16px;position:sticky;top:0;z-index:100}
+.logo{font-weight:600;font-size:15px;color:var(--tx);letter-spacing:-.2px;display:flex;align-items:center;gap:10px}
+.logo-icon{width:28px;height:28px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.kpi-pill{background:var(--bg4);border:1px solid var(--line2);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--tx2);font-family:'DM Mono',monospace}
+.kpi-pill span{color:var(--tx);font-weight:500}
+
+.sidebar{background:var(--bg2);border-right:1px solid var(--line);padding:20px 0;display:flex;flex-direction:column;gap:2px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.nav-section{padding:0 16px 6px;font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-top:16px}
+.nav-section:first-child{margin-top:0}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:9px 16px;border-radius:var(--r);margin:0 8px;cursor:pointer;border:none;background:transparent;color:var(--tx2);font-size:13px;font-family:'DM Sans',sans-serif;transition:all .15s;width:calc(100% - 16px);text-align:left}
+.nav-btn:hover{background:var(--bg3);color:var(--tx)}
+.nav-btn.active{background:var(--acc);color:#fff;font-weight:500}
+.nav-btn .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-red{background:var(--red)}
+.dot-grn{background:var(--grn)}
+.dot-ylw{background:var(--ylw)}
+.dot-blu{background:var(--blu)}
+.dot-acc{background:var(--acc2)}
+
+.main{padding:28px;overflow-y:auto;display:flex;flex-direction:column;gap:24px}
+
+.section{display:none}
+.section.active{display:flex;flex-direction:column;gap:20px}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rxl);overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.card-head h2{font-size:13px;font-weight:600;color:var(--tx);flex:1}
+.card-tag{font-size:10px;font-weight:500;padding:3px 9px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px}
+.tag-red{background:var(--red-m);color:var(--red)}
+.tag-grn{background:var(--grn-m);color:var(--grn)}
+.tag-ylw{background:var(--ylw-m);color:var(--ylw)}
+.tag-acc{background:#1e1f3d;color:var(--acc2)}
+.card-body{padding:20px}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-group{display:flex;flex-direction:column;gap:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px}
+.field input,.field select,.field textarea{
+  background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r);
+  padding:9px 12px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .15s,background .15s;width:100%
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc2);background:var(--bg4)}
+.field input::placeholder{color:var(--tx3)}
+.field select option{background:var(--bg3)}
+.field textarea{resize:none;height:64px}
+.field input[type=number]{font-family:'DM Mono',monospace}
+.accent-border-left{border-left:2px solid var(--red)!important}
+.accent-border-left.grn{border-left-color:var(--grn)!important}
+.accent-border-left.ylw{border-left-color:var(--ylw)!important}
+.accent-border-left.acc{border-left-color:var(--acc)!important}
+
+.btn-row{display:flex;gap:10px;align-items:center;padding-top:4px}
+.btn-primary{padding:10px 24px;background:var(--acc);color:#fff;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;letter-spacing:.1px}
+.btn-primary:hover{background:var(--acc2);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-sec{padding:10px 16px;background:transparent;color:var(--tx2);border:1px solid var(--line2);border-radius:var(--r);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-sec:hover{background:var(--bg3);color:var(--tx)}
+.toast{font-size:12px;color:var(--grn);display:none;align-items:center;gap:6px;background:var(--grn-d);padding:6px 12px;border-radius:20px;border:1px solid var(--grn-m)}
+
+/* ── TABLE ── */
+.table-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r);padding:9px 12px 9px 36px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.search-wrap input:focus{border-color:var(--acc2)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:15px;pointer-events:none}
+.filter-sel{background:var(--bg3);border:1px solid var(--line2);border-radius:var(--r);padding:9px 12px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+.count-badge{font-size:11px;color:var(--tx2);background:var(--bg4);padding:4px 10px;border-radius:12px;border:1px solid var(--line);font-family:'DM Mono',monospace;margin-left:auto}
+.btn-export{display:flex;align-items:center;gap:6px;padding:9px 14px;background:transparent;color:var(--tx2);border:1px solid var(--line2);border-radius:var(--r);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-export:hover{background:var(--bg3);color:var(--grn);border-color:var(--grn)}
+
+.tbl-wrap{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:'DM Sans',sans-serif}
+.thead-group th{padding:7px 8px;text-align:center;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.th-loc{background:#1a1f30;color:var(--tx2)}
+.th-dep{background:#2a0e0e;color:var(--red)}
+.th-ins{background:#0c1a2e;color:var(--blu)}
+.th-tps{background:#1a1300;color:var(--ylw)}
+.th-oth{background:#1a1f30;color:var(--tx2)}
+.thead-col th{background:var(--bg3);color:var(--tx3);padding:6px 7px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.4px;text-align:center;border-bottom:1px solid var(--line)}
+tbody tr{border-bottom:1px solid var(--line);transition:background .1s}
+tbody tr:hover{background:var(--bg3)}
+tbody tr:last-child{border-bottom:none}
+td{padding:8px 7px;text-align:center;vertical-align:middle;font-size:12px}
+td.left{text-align:left}
+td.mono{font-family:'DM Mono',monospace;font-size:11px}
+td.dep{color:var(--red);font-family:'DM Mono',monospace;font-size:11px}
+td.ins{color:var(--blu);font-family:'DM Mono',monospace;font-size:11px}
+td.tps{color:var(--ylw);font-family:'DM Mono',monospace;font-size:11px}
+td.tps-tot{color:var(--ylw);font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
+.empty-msg td{text-align:center;padding:40px;color:var(--tx3);font-size:13px}
+.badge{display:inline-block;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:500;letter-spacing:.2px}
+.b-faire{background:#1e2333;color:var(--tx2)}
+.b-cours{background:var(--ylw-d);color:var(--ylw);border:1px solid var(--ylw-m)}
+.b-done{background:var(--grn-d);color:var(--grn);border:1px solid var(--grn-m)}
+.b-attente{background:#1a1f30;color:var(--blu);border:1px solid var(--blu-d)}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:13px;padding:3px 6px;border-radius:5px;transition:all .15s}
+.btn-del:hover{color:var(--red);background:var(--red-d)}
+
+/* ── RECAP ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rl);padding:16px 18px}
+.kpi-val{font-size:28px;font-weight:300;font-family:'DM Mono',monospace;line-height:1;margin-bottom:4px}
+.kpi-label{font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px;font-weight:500}
+.kpi-card.red .kpi-val{color:var(--red)}
+.kpi-card.grn .kpi-val{color:var(--grn)}
+.kpi-card.ylw .kpi-val{color:var(--ylw)}
+.kpi-card.acc .kpi-val{color:var(--acc2)}
+
+.recap-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.recap-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rl);overflow:hidden}
+.recap-card-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.recap-card-head h3{font-size:12px;font-weight:600;color:var(--tx)}
+.recap-item{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;border-top:1px solid var(--line)}
+.recap-item:hover{background:var(--bg3)}
+.recap-name{font-size:12px;color:var(--tx2)}
+.recap-num{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+.recap-unit{font-size:10px;color:var(--tx3);margin-left:4px}
+.num-red{color:var(--red)}
+.num-grn{color:var(--grn)}
+.num-ylw{color:var(--ylw)}
+
+.temps-full{grid-column:1/-1}
+.temps-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.temps-grid .recap-item:nth-child(odd){border-right:1px solid var(--line)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.section.active{animation:fadeIn .2s ease}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      Suivi Chantier
+    </div>
+    <div class="topbar-right">
+      <div class="kpi-pill">Lignes : <span id="top-count">0</span></div>
+      <div class="kpi-pill">H. pose : <span id="top-hpose">0</span>h</div>
+      <div class="kpi-pill">H. équipe : <span id="top-hequipe">0</span>h</div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-section">Navigation</div>
+    <button class="nav-btn active" onclick="goTo('saisie',this)">
+      <span class="dot dot-acc"></span> Nouvelle entrée
+    </button>
+    <button class="nav-btn" onclick="goTo('tableau',this)">
+      <span class="dot dot-blu"></span> Tableau complet
+    </button>
+    <button class="nav-btn" onclick="goTo('recap',this)">
+      <span class="dot dot-grn"></span> Récapitulatif
+    </button>
+
+    <div class="nav-section" style="margin-top:24px">Dépose</div>
+    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
+      <span class="dot dot-red"></span> BBG · Bouton · Ventouse
+    </button>
+    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
+      <span class="dot dot-red"></span> Câble · Tube · Caméra
+    </button>
+    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
+      <span class="dot dot-red"></span> Support · Boîte RJ45
+    </button>
+
+    <div class="nav-section" style="margin-top:8px">Installation</div>
+    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
+      <span class="dot dot-grn"></span> BBG · BCR · Bouton
+    </button>
+    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
+      <span class="dot dot-grn"></span> Câble · Tube · Perc · CF
+    </button>
+    <button class="nav-btn" style="font-size:12px;color:var(--tx3);pointer-events:none">
+      <span class="dot dot-grn"></span> Finition · Cam · RJ45
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══ SAISIE ══ -->
+    <div class="section active" id="sec-saisie">
+
+      <!-- Localisation + Temps -->
+      <div class="form-grid">
+        <div class="card">
+          <div class="card-head">
+            <h2>📍 Localisation</h2>
+            <span class="card-tag tag-acc">obligatoire *</span>
+          </div>
+          <div class="card-body field-group">
+            <div class="row3">
+              <div class="field"><label>Bâtiment</label><input id="f-bat" placeholder="Bat A" class="accent-border-left acc"></div>
+              <div class="field"><label>Étage</label><input id="f-etage" placeholder="RDC" class="accent-border-left acc"></div>
+              <div class="field"><label>Zone</label><input id="f-zone" placeholder="Hall Nord" class="accent-border-left acc"></div>
+            </div>
+            <div class="field"><label>Local / Porte *</label><input id="f-local" placeholder="Porte P01 – Salle de réunion" class="accent-border-left acc"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>⏱ Temps &amp; Statut</h2>
+            <span class="card-tag tag-ylw">planning</span>
+          </div>
+          <div class="card-body field-group">
+            <div class="row3">
+              <div class="field"><label>Pose (h)</label><input id="f-tpose" type="number" min="0" step="0.5" placeholder="0" class="accent-border-left ylw"></div>
+              <div class="field"><label>Progr. (h)</label><input id="f-tprog" type="number" min="0" step="0.5" placeholder="0" class="accent-border-left ylw"></div>
+              <div class="field"><label>Intervenants</label><input id="f-interv" type="number" min="1" step="1" placeholder="1" class="accent-border-left ylw"></div>
+            </div>
+            <div class="row2">
+              <div class="field"><label>Statut</label>
+                <select id="f-statut" class="accent-border-left acc">
+                  <option>À faire</option><option>En cours</option><option>Terminé</option><option>En attente</option>
+                </select>
+              </div>
+              <div class="field"><label>Remarques</label><textarea id="f-rem" placeholder="Notes..."></textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dépose -->
+      <div class="card">
+        <div class="card-head">
+          <h2>🔴 Dépose</h2>
+          <span class="card-tag tag-red">matériel à retirer</span>
+        </div>
+        <div class="card-body field-group">
+          <div class="row4">
+            <div class="field"><label>BBG</label><input id="d-bbg" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+            <div class="field"><label>Bouton sortie</label><input id="d-btn" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+            <div class="field"><label>Ventouse</label><input id="d-vent" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+            <div class="field"><label>Caméra</label><input id="d-cam" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+          </div>
+          <div class="row4">
+            <div class="field"><label>Câble (m)</label><input id="d-cable" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+            <div class="field"><label>Tube (m)</label><input id="d-tube" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+            <div class="field"><label>Support</label><input id="d-supp" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+            <div class="field"><label>Boîte RJ45</label><input id="d-rj45" type="number" min="0" placeholder="0" class="accent-border-left"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Installation -->
+      <div class="card">
+        <div class="card-head">
+          <h2>🟢 Installation</h2>
+          <span class="card-tag tag-grn">matériel à poser</span>
+        </div>
+        <div class="card-body field-group">
+          <div class="row4">
+            <div class="field"><label>BBG</label><input id="i-bbg" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>BCR</label><input id="i-bcr" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>Bouton sortie</label><input id="i-btn" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>Ventouse</label><input id="i-vent" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+          </div>
+          <div class="row4">
+            <div class="field"><label>Câble (m)</label><input id="i-cable" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>Tube (m)</label><input id="i-tube" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>Percement</label><input id="i-perc" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>Coupe-feu</label>
+              <select id="i-cf" class="accent-border-left grn"><option>N/A</option><option>Oui</option><option>Non</option></select>
+            </div>
+          </div>
+          <div class="row4">
+            
+            <div class="field"><label>Finition</label><select id="i-fin" class="accent-border-left grn"><option value="">–</option><option>Oui</option><option>Non</option></select></div>
+            <div class="field"><label>Caméra</label><input id="i-cam" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+            <div class="field"><label>Support</label><input id="i-supp" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+          </div>
+          <div class="row4">
+            <div class="field"><label>Boîte RJ45</label><input id="i-rj45" type="number" min="0" placeholder="0" class="accent-border-left grn"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="addEntry()">+ Ajouter la ligne</button>
+        <button class="btn-sec" onclick="clearForm()">Effacer le formulaire</button>
+        <div class="toast" id="toast">✓ Ligne ajoutée avec succès</div>
+      </div>
+    </div>
+
+    <!-- ══ TABLEAU ══ -->
+    <div class="section" id="sec-tableau">
+      <div class="table-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search" placeholder="Rechercher…" oninput="renderTable()">
+        </div>
+        <select class="filter-sel" id="filtre-statut" onchange="renderTable()">
+          <option value="">Tous les statuts</option>
+          <option>À faire</option><option>En cours</option><option>Terminé</option><option>En attente</option>
+        </select>
+        <button class="btn-export" onclick="exportCSV()">↓ Export CSV</button>
+        <span class="count-badge" id="count-label">0 ligne</span>
+      </div>
+
+      <div class="tbl-wrap">
+        <table id="main-table">
+          <thead>
+            <tr class="thead-group">
+              <th colspan="4" class="th-loc">Localisation</th>
+              <th colspan="8" class="th-dep">Dépose</th>
+              <th colspan="13" class="th-ins">Installation</th>
+              <th colspan="4" class="th-tps">Temps</th>
+              <th colspan="3" class="th-oth">Statut / Notes</th>
+            </tr>
+            <tr class="thead-col">
+              <th>Bat.</th><th>Zone</th><th>Ét.</th><th>Local</th>
+              <th>BBG</th><th>Btn</th><th>Vent</th><th>Câble</th><th>Tube</th><th>Cam</th><th>Supp</th><th>RJ45</th>
+              <th>BBG</th><th>BCR</th><th>Btn</th><th>Vent</th><th>Câble</th><th>Tube</th><th>Perc</th><th>CF</th><th>Fin</th><th>Cam</th><th>Supp</th><th>RJ45</th>
+              <th>Pose</th><th>Prog</th><th>Interv</th><th>Tot.h</th>
+              <th>Statut</th><th>Rem.</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ RÉCAP ══ -->
+    <div class="section" id="sec-recap">
+      <div class="kpi-grid" id="kpis"></div>
+
+      <div class="recap-cols">
+        <div class="recap-card">
+          <div class="recap-card-head">
+            <h3>🔴 Dépose</h3>
+            <span class="card-tag tag-red">totaux</span>
+          </div>
+          <div id="r-depose"></div>
+        </div>
+        <div class="recap-card">
+          <div class="recap-card-head">
+            <h3>🟢 Installation</h3>
+            <span class="card-tag tag-grn">totaux</span>
+          </div>
+          <div id="r-install"></div>
+        </div>
+        <div class="recap-card temps-full">
+          <div class="recap-card-head">
+            <h3>⏱ Temps</h3>
+            <span class="card-tag tag-ylw">totaux</span>
+          </div>
+          <div class="temps-grid" id="r-temps"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let data = [];
+
+function n(id){const v=document.getElementById(id)?.value;return(!v||v==='')? 0:parseFloat(v)||0}
+function s(id){return document.getElementById(id)?.value||''}
+function set(id,v){const el=document.getElementById(id);if(el)el.value=v}
+function v0(x){return x?x:'–'}
+function vm(x){return x||''}
+
+function goTo(sec, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  btn.classList.add('active');
+  if(sec==='recap')renderRecap();
+  if(sec==='tableau')renderTable();
+}
+
+function addEntry(){
+  const local=s('f-local').trim();
+  if(!local){
+    document.getElementById('f-local').focus();
+    document.getElementById('f-local').style.borderColor='var(--red)';
+    setTimeout(()=>document.getElementById('f-local').style.borderColor='',1500);
+    return;
+  }
+  const interv=n('f-interv')||1;
+  const pose=n('f-tpose');
+  const e={
+    id:Date.now(),
+    bat:s('f-bat'),zone:s('f-zone'),etage:s('f-etage'),local,
+    d:{bbg:n('d-bbg'),btn:n('d-btn'),vent:n('d-vent'),cable:n('d-cable'),tube:n('d-tube'),cam:n('d-cam'),supp:n('d-supp'),rj45:n('d-rj45')},
+    i:{bbg:n('i-bbg'),bcr:n('i-bcr'),btn:n('i-btn'),vent:n('i-vent'),cable:n('i-cable'),tube:n('i-tube'),perc:n('i-perc'),cf:s('i-cf'),fin:s('i-fin'),cam:n('i-cam'),supp:n('i-supp'),rj45:n('i-rj45')},
+    t:{pose,prog:n('f-tprog'),interv,total:+(pose*interv).toFixed(2)},
+    statut:s('f-statut'),rem:s('f-rem')
+  };
+  data.push(e);
+  clearForm();
+  updateTopbar();
+  const toast=document.getElementById('toast');
+  toast.style.display='flex';
+  setTimeout(()=>toast.style.display='none',2500);
+}
+
+function clearForm(){
+  ['f-bat','f-zone','f-etage','f-local','f-rem'].forEach(id=>set(id,''));
+  ['d-bbg','d-btn','d-vent','d-cable','d-tube','d-cam','d-supp','d-rj45',
+   'i-bbg','i-bcr','i-btn','i-vent','i-cable','i-tube','i-perc','i-cam','i-supp','i-rj45',
+   'f-tpose','f-tprog','f-interv'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  set('i-cf','N/A');set('i-fin','');set('f-statut','À faire');
+}
+
+function delEntry(id){
+  data=data.filter(e=>e.id!==id);
+  renderTable();renderRecap();updateTopbar();
+}
+
+function updateTopbar(){
+  document.getElementById('top-count').textContent=data.length;
+  document.getElementById('top-hpose').textContent=+(data.reduce((a,e)=>a+e.t.pose,0)).toFixed(1);
+  document.getElementById('top-hequipe').textContent=+(data.reduce((a,e)=>a+e.t.total,0)).toFixed(1);
+}
+
+function badgeHtml(st){
+  const m={'À faire':'b-faire','En cours':'b-cours','Terminé':'b-done','En attente':'b-attente'};
+  return `<span class="badge ${m[st]||'b-faire'}">${st}</span>`;
+}
+
+function renderTable(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const fs=document.getElementById('filtre-statut').value;
+  const rows=data.filter(e=>{
+    const txt=(e.bat+e.zone+e.etage+e.local+e.rem).toLowerCase();
+    return txt.includes(q)&&(fs===''||e.statut===fs);
+  });
+  document.getElementById('count-label').textContent=rows.length+' ligne'+(rows.length!==1?'s':'');
+  const tb=document.getElementById('tbody');
+  if(!rows.length){
+    tb.innerHTML=`<tr class="empty-msg"><td colspan="32">Aucune donnée – remplis le formulaire dans "Nouvelle entrée"</td></tr>`;
+    return;
+  }
+  tb.innerHTML=rows.map(e=>`
+    <tr>
+      <td class="left">${v0(e.bat)}</td><td class="left">${v0(e.zone)}</td><td>${v0(e.etage)}</td><td class="left" style="min-width:120px;font-weight:500">${e.local}</td>
+      <td class="dep">${vm(e.d.bbg)}</td><td class="dep">${vm(e.d.btn)}</td><td class="dep">${vm(e.d.vent)}</td><td class="dep">${vm(e.d.cable)}</td><td class="dep">${vm(e.d.tube)}</td><td class="dep">${vm(e.d.cam)}</td><td class="dep">${vm(e.d.supp)}</td><td class="dep">${vm(e.d.rj45)}</td>
+      <td class="ins">${vm(e.i.bbg)}</td><td class="ins">${vm(e.i.bcr)}</td><td class="ins">${vm(e.i.btn)}</td><td class="ins">${vm(e.i.vent)}</td><td class="ins">${vm(e.i.cable)}</td><td class="ins">${vm(e.i.tube)}</td><td class="ins">${vm(e.i.perc)}</td><td class="ins" style="font-size:10px">${e.i.cf}</td><td class="ins" style="font-size:10px;max-width:70px">${v0(e.i.fin)}</td><td class="ins">${vm(e.i.cam)}</td><td class="ins">${vm(e.i.supp)}</td><td class="ins">${vm(e.i.rj45)}</td>
+      <td class="tps">${vm(e.t.pose)}</td><td class="tps">${vm(e.t.prog)}</td><td class="tps">${e.t.interv}</td><td class="tps-tot">${e.t.total||''}</td>
+      <td>${badgeHtml(e.statut)}</td><td class="left" style="font-size:11px;color:var(--tx2);max-width:90px">${v0(e.rem)}</td>
+      <td><button class="btn-del" onclick="delEntry(${e.id})" title="Supprimer">✕</button></td>
+    </tr>`).join('');
+}
+
+function sum(f){
+  return data.reduce((a,e)=>{
+    let val=e;f.split('.').forEach(p=>val=val?.[p]);
+    return a+(parseFloat(val)||0);
+  },0);
+}
+
+function recapItem(label,val,unit,cls){
+  return `<div class="recap-item"><span class="recap-name">${label}</span><span><span class="recap-num ${cls}">${val||0}</span><span class="recap-unit">${unit}</span></span></div>`;
+}
+
+function renderRecap(){
+  const total=data.length;
+  const done=data.filter(e=>e.statut==='Terminé').length;
+  const hPose=+sum('t.pose').toFixed(1);
+  const hProg=+sum('t.prog').toFixed(1);
+  const hTeam=+(data.reduce((a,e)=>a+e.t.total,0)).toFixed(1);
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi-card acc"><div class="kpi-val">${total}</div><div class="kpi-label">Lignes saisies</div></div>
+    <div class="kpi-card grn"><div class="kpi-val">${done}</div><div class="kpi-label">Terminées</div></div>
+    <div class="kpi-card ylw"><div class="kpi-val">${hPose}</div><div class="kpi-label">Heures pose</div></div>
+    <div class="kpi-card red"><div class="kpi-val">${hTeam}</div><div class="kpi-label">Heures équipe</div></div>
+  `;
+
+  document.getElementById('r-depose').innerHTML=[
+    ['BBG','d.bbg','u'],['Bouton','d.btn','u'],['Ventouse','d.vent','u'],
+    ['Câble','d.cable','m'],['Tube','d.tube','m'],['Caméra','d.cam','u'],
+    ['Support','d.supp','u'],['Boîte RJ45','d.rj45','u']
+  ].map(([l,f,u])=>recapItem(l,sum(f),u,'num-red')).join('');
+
+  document.getElementById('r-install').innerHTML=[
+    ['BBG','i.bbg','u'],['BCR','i.bcr','u'],['Bouton','i.btn','u'],['Ventouse','i.vent','u'],
+    ['Câble','i.cable','m'],['Tube','i.tube','m'],['Percement','i.perc','u'],
+    ['Caméra','i.cam','u'],['Support','i.supp','u'],['Boîte RJ45','i.rj45','u']
+  ].map(([l,f,u])=>recapItem(l,sum(f),u,'num-grn')).join('');
+
+  document.getElementById('r-temps').innerHTML=[
+    ['Heures de pose',hPose,'h'],
+    ['Heures de programmation',hProg,'h'],
+    ['Heures équipe (pose × interv.)',hTeam,'h'],
+    ['Pose + programmation',+(hPose+hProg).toFixed(1),'h']
+  ].map(([l,v,u])=>`<div class="recap-item"><span class="recap-name">${l}</span><span><span class="recap-num num-ylw">${v}</span><span class="recap-unit">${u}</span></span></div>`).join('');
+}
+
+function exportCSV(){
+  if(!data.length){alert('Aucune donnée.');return;}
+  const hdrs=['Bâtiment','Zone','Étage','Local',
+    'D-BBG','D-Bouton','D-Ventouse','D-Câble','D-Tube','D-Caméra','D-Support','D-RJ45',
+    'I-BBG','I-BCR','I-Bouton','I-Ventouse','I-Câble','I-Tube','I-Percement','I-CF','I-Finition','I-Caméra','I-Support','I-RJ45',
+    'Pose(h)','Prog(h)','Interv','Total-h','Statut','Remarques'];
+  const rows=data.map(e=>[
+    e.bat,e.zone,e.etage,e.local,
+    e.d.bbg,e.d.btn,e.d.vent,e.d.cable,e.d.tube,e.d.cam,e.d.supp,e.d.rj45,
+    e.i.bbg,e.i.bcr,e.i.btn,e.i.vent,e.i.cable,e.i.tube,e.i.perc,e.i.cf,e.i.fin,e.i.cam,e.i.supp,e.i.rj45,
+    e.t.pose,e.t.prog,e.t.interv,e.t.total,e.statut,e.rem
+  ].map(x=>`"${String(x??'').replace(/"/g,'""')}"`).join(';'));
+  const csv='\uFEFF'+[hdrs.join(';'),...rows].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='suivi_chantier_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+// ── PERSISTENCE localStorage ──────────────────────────────────────────────
+function saveData(){
+  try{localStorage.setItem('chantier_data', JSON.stringify(data));}catch(e){}
+}
+function loadData(){
+  try{
+    const raw = localStorage.getItem('chantier_data');
+    if(raw){data = JSON.parse(raw);}
+  }catch(e){data=[];}
+}
+
+// Patch addEntry and delEntry to auto-save
+const _origAdd = addEntry;
+window.addEntry = function(){
+  _origAdd();
+  saveData();
+  updateTopbar();
+}
+const _origDel = delEntry;
+window.delEntry = function(id){
+  if(!confirm('Supprimer cette ligne ?'))return;
+  data=data.filter(e=>e.id!==id);
+  renderTable();renderRecap();updateTopbar();
+  saveData();
+}
+
+// Load on startup
+loadData();
+updateTopbar();
+renderTable();
+renderRecap();
+
+</script>
+</body>
+</html>
