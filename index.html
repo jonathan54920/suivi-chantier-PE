@@ -592,7 +592,7 @@ function renderTable(){
       <td class="dep">${vm(e.d.bbg)}</td><td class="dep">${vm(e.d.btn)}</td><td class="dep">${vm(e.d.vent)}</td><td class="dep">${vm(e.d.cable)}</td><td class="dep">${vm(e.d.tube)}</td><td class="dep">${vm(e.d.cam)}</td><td class="dep">${vm(e.d.supp)}</td><td class="dep">${vm(e.d.rj45)}</td>
       <td class="ins">${vm(e.i.bbg)}</td><td class="ins">${vm(e.i.bcr)}</td><td class="ins">${vm(e.i.btn)}</td><td class="ins">${vm(e.i.vent)}</td><td class="ins">${vm(e.i.cable)}</td><td class="ins">${vm(e.i.tube)}</td><td class="ins">${vm(e.i.perc)}</td><td class="ins" style="font-size:10px">${e.i.cf}</td><td class="ins" style="font-size:10px;max-width:70px">${v0(e.i.fin)}</td><td class="ins">${vm(e.i.cam)}</td><td class="ins">${vm(e.i.supp)}</td><td class="ins">${vm(e.i.rj45)}</td>
       <td class="tps">${vm(e.t.pose)}</td><td class="tps">${vm(e.t.prog)}</td><td class="tps">${e.t.interv}</td><td class="tps-tot">${e.t.total||''}</td>
-      <td>${badgeHtml(e.statut)}</td><td class="left" style="font-size:11px;color:var(--tx2);max-width:90px">${v0(e.rem)}</td>
+      <td>`<button onclick="changeStatut(${e.id})" style="background:none;border:none;cursor:pointer;padding:0" title="Changer le statut">`+badgeHtml(e.statut)+`</button>`</td><td class="left" style="font-size:11px;color:var(--tx2);max-width:90px">${v0(e.rem)}</td>
       <td><button class="btn-del" onclick="delEntry(${e.id})" title="Supprimer">✕</button></td>
     </tr>`).join('');
 }
@@ -662,6 +662,19 @@ function exportCSV(){
 }
 
 
+
+function changeStatut(id){
+  const e = data.find(e=>e.id===id);
+  if(!e) return;
+  const statuts = ['À faire','En cours','Terminé','En attente'];
+  const idx = statuts.indexOf(e.statut);
+  e.statut = statuts[(idx+1) % statuts.length];
+  saveData();
+  renderList();
+  renderRecap();
+  updateTopbar();
+}
+
 function chip(lbl, val, cls){
   if(!val || val===0 || val==='') return '';
   return `<div class="chip ${cls}"><span class="chip-lbl">${lbl}</span> ${val}</div>`;
@@ -689,7 +702,7 @@ function renderCards(){
     return `<div class="entry-card">
       <div class="ec-head">
         <div><div class="ec-title">${e.local}</div>${loc?`<div class="ec-sub">${loc}</div>`:''}</div>
-        ${badgeHtml(e.statut)}
+        `<button onclick="changeStatut(${e.id})" style="background:none;border:none;cursor:pointer;padding:0" title="Changer le statut">`+badgeHtml(e.statut)+`</button>`
       </div>
       <div class="ec-body">
         ${dc?`<div><div class="ec-section-label red">Dépose</div><div class="chips">${dc}</div></div>`:''}
